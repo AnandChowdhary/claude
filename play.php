@@ -40,6 +40,7 @@
 	} else if (isset($_POST["restart"])) {
 		session_destroy();
 		session_unset();
+		header("Location: ./play");
 	}
 
 	$score = $_SESSION["score"];
@@ -47,23 +48,41 @@
 
 ?>
 
+<title>Claude</title>
 <style>
-	body { font-family: sans-serif; padding: 10vw 10vh }
-	button { background: #eee; border: 1px solid #ddd; font: inherit; padding: 0.5rem 1rem; margin: 1rem; border-radius: 5px }
+	html { background: whitesmoke; font-family: sans-serif; }
+	body { max-width: 450px; margin: auto; background: #fff; padding: 2rem; }
+	button { background: #eee; border: 1px solid #ddd; font: inherit; padding: 0.5rem 1rem; border-radius: 5px }
+	button.big { padding: 1rem 0; width: 100% }
+	button.big:first-child { border-radius: 5px 0 0 5px }
+	button.big:last-child { border-radius: 0 5px 5px 0 }
+	a { color: #3498db }
+	hr { border: 0; border-bottom: 1px solid #ddd; margin: 2rem 0 }
 </style>
 
 <form method="post">
 	<h3>Claude</h3>
-	<p>Your code is <strong><?= strtoupper(implode("-", str_split(substr(session_id(), 0, 6), 2))); ?></strong>. You can share it with your friends to keep track of what the computer is guessing.</p>
 	<p>Select an option. Randomly.</p>
-		<button name="choice" value="L" type="submit">&larr; Left</button>
-		<button name="choice" value="R" type="submit">Right &rarr;</button>
-	<p>
-		Your score: <strong><?= $score ?></strong> &middot;
-		Computer score: <strong><?= $cScore ?></strong>
-	</p>
-	<?php if ($lastGuess) { ?><p>Last guess: <?= $lastGuess ?></p><?php } ?>
-	<p>This game uses cookies to store your code.</p>
+	<div style="display: flex; justify-content: space-between">
+		<button class="big" name="choice" value="L" type="submit">&larr; Left</button>
+		<button class="big" name="choice" value="R" type="submit">Right &rarr;</button>
+	</div>
+	<div class="scores" style="margin-top: 2rem">
+		<div style="display: flex; justify-content: space-between">
+			<div style="width: 30%">Player (<?= $score ?>)</div>
+			<div style="width: 100%"><progress value="<?= $score ?>" max="<?= $score + $cScore ?>" style="width: 100%"><?= $score ?></progress></div>
+		</div>
+		<div style="display: flex; justify-content: space-between; margin-top: 0.5rem">
+			<div style="width: 30%">Claude (<?= $cScore ?>)</div>
+			<div style="width: 100%"><progress value="<?= $cScore ?>" max="<?= $cScore + $score ?>" style="width: 100%"><?= $cScore ?></progress></div>
+		</div>
+	</div>
+	<?php if ($lastGuess) { ?><p><strong> <?= $lastGuess === "Correct" ? "Claude got it right!" : "You won!" ?> </strong></p><?php } ?>
+	<hr>
+	<h4>Info</h4>
+	<p>Your code is <strong><?= strtoupper(implode("-", str_split(substr(session_id(), 0, 6), 2))); ?></strong>. You can share it with your friends to keep track of what the computer is guessing.</p>
+	<p>This game is using a Naive Bayes classifier, a probabilistic classifiers based on an application of Bayes' theorem.</p>
+	<p>By playing this game, you agree to our use of cookies to store your playing score, choices, and code. <a href="https://oswaldlabs.com/cookies">Cookie Policy</a></p>
 	<p><button name="restart">Restart</button></p>
-	<p><small style="color: #ccc">I think: <?= $iThink === "R" ? "Right" : "Left" ?></small></p>
+	<p><small style="color: #ccc">My next guess: <?= $iThink === "R" ? "Right" : "Left" ?></small></p>
 </form>
